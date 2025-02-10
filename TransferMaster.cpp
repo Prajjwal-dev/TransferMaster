@@ -94,6 +94,12 @@ void transferGuidelines() {
     cout << "9. Use of roster to manage player from club.\n";
     cout << "10. The player must be 16 years or above for transfer.\n";
     cout << "11. Overall AI model is used for performing the task.\n";
+    cout << "\nRating and Market Value Table:\n";
+    cout << "----------------------------------------\n";
+    cout << "Level 1 - Minimum: Rating 50, Market Value $10M\n";
+    cout << "Level 2 - Average: Rating 75, Market Value $50M\n";
+    cout << "Level 3 - Maximum: Rating 100, Market Value $120M\n";
+    cout << "----------------------------------------\n";
     setColor(RESET);
     cout << "\nPress any key to return...\n";
     _getch();
@@ -105,6 +111,7 @@ private:
     int id;
     string name;
     int age;
+    string nationality;
     string position;
     char status; // A = Active, I = Inactive, T = Terminated
     int goals;
@@ -115,20 +122,22 @@ private:
     int injuries;
     string contractStartDate;
     string contractEndDate;
+    string club; // New parameter
 
 public:
-    Player(int id = 0, string name = "", int age = 0, string position = "",
+    Player(int id = 0, string name = "", int age = 0, string nationality = "", string position = "",
            char status = 'A', int goals = 0, int assists = 0, int matches = 0,
            int tacklesWon = 0, int keyPasses = 0, int injuries = 0, string contractStartDate = "",
-           string contractEndDate = "")
-        : id(id), name(name), age(age), position(position), status(status),
+           string contractEndDate = "", string club = "") // Modified constructor
+        : id(id), name(name), age(age), nationality(nationality), position(position), status(status),
           goals(goals), assists(assists), matches(matches), tacklesWon(tacklesWon), keyPasses(keyPasses),
-          injuries(injuries), contractStartDate(contractStartDate), contractEndDate(contractEndDate) {}
+          injuries(injuries), contractStartDate(contractStartDate), contractEndDate(contractEndDate), club(club) {} // Initialize club
 
     // Getters
     int getId() const { return id; }
     string getName() const { return name; }
     int getAge() const { return age; }
+    string getNationality() const { return nationality; }
     string getPosition() const { return position; }
     char getStatus() const { return status; }
     int getGoals() const { return goals; }
@@ -139,10 +148,12 @@ public:
     int getInjuries() const { return injuries; }
     string getContractStartDate() const { return contractStartDate; }
     string getContractEndDate() const { return contractEndDate; }
+    string getClub() const { return club; } // New getter for club
 
     // Setters
     void setName(const string &newName) { name = newName; }
     void setAge(int newAge) { age = newAge; }
+    void setNationality(const string &newNationality) { nationality = newNationality; }
     void setPosition(const string &newPosition) { position = newPosition; }
     void setStatus(char newStatus) { status = newStatus; }
     void setGoals(int newGoals) { goals = newGoals; }
@@ -153,12 +164,14 @@ public:
     void setInjuries(int newInjuries) { injuries = newInjuries; }
     void setContractStartDate(const string &newContractStartDate) { contractStartDate = newContractStartDate; }
     void setContractEndDate(const string &newContractEndDate) { contractEndDate = newContractEndDate; }
+    void setClub(const string &newClub) { club = newClub; } // New setter for club
 
     // Display player info in a tabular format
     void display() const {
         cout << "ID: " << id << "\n"
              << "Name: " << name << "\n"
              << "Age: " << age << "\n"
+             << "Nationality: " << nationality << "\n"
              << "Position: " << position << "\n"
              << "Status: " << status << "\n"
              << "Goals Scored: " << goals << "\n"
@@ -168,23 +181,24 @@ public:
              << "Key Passes: " << keyPasses << "\n"
              << "Injuries: " << injuries << "\n"
              << "Contract Start Date: " << contractStartDate << "\n"
-             << "Contract End Date: " << contractEndDate << "\n";
+             << "Contract End Date: " << contractEndDate << "\n"
+             << "Club: " << club << "\n"; // Display club
     }
 
-    // Calculate player rating using a regression model
-    double calculateRating() const {
-        double rating = (goals * 0.4 + assists * 0.3 + matches * 0.1 + tacklesWon * 0.1 + keyPasses * 0.1);
-        rating -= (injuries * 0.05 + age * 0.02);
-        return max(0.0, min(rating, 100.0)); // Ensure rating is between 0 and 100
-    }
+// Calculate player rating using a regression model
+double calculateRating() const {
+    double rating = (goals * 0.4 + assists * 0.3 + matches * 0.1 + tacklesWon * 0.1 + keyPasses * 0.1);
+    rating -= (injuries * 0.05 + age * 0.02);
+    return max(0.0, min(rating, 100.0)); // Ensure rating is between 0 and 100
+}
 
-    // Calculate transfer fee based on player rating and statistics using AI
-    double calculateTransferFee() const {
-        double rating = calculateRating();
-        double transferFee = rating * 1000 + (goals + assists + matches + tacklesWon + keyPasses) * 500 - (injuries * 2000 + age * 1000);
-        if (transferFee < 0) transferFee = 0;
-        return transferFee;
-    }
+// Calculate transfer fee based on player rating and statistics using AI
+double calculateTransferFee() const {
+    double rating = calculateRating();
+    double transferFee = rating * 1200000 + (goals + assists + matches + tacklesWon + keyPasses) * 60000 - (injuries * 250000 + age * 150000);
+    if (transferFee < 0) transferFee = 0;
+    return transferFee;
+}
 };
 
 vector<Player> players;
@@ -198,11 +212,11 @@ void savePlayersToFile() {
         return;
     }
     for (const auto &player : players) {
-        file << player.getId() << "|" << player.getName() << "|" << player.getAge() << "|"
+        file << player.getId() << "|" << player.getName() << "|" << player.getAge() << "|" << player.getNationality() << "|"
              << player.getPosition() << "|" << player.getStatus() << "|" << player.getGoals() << "|"
-             << player.getAssists() << "|" << player.getMatches() << "|" << player.getTacklesWon()
-             << "|" << player.getKeyPasses() << "|" << player.getInjuries() << "|" << player.getContractStartDate()
-             << "|" << player.getContractEndDate() << "\n";
+             << player.getAssists() << "|" << player.getMatches() << "|" << player.getTacklesWon() << "|"
+             << player.getKeyPasses() << "|" << player.getInjuries() << "|" << player.getContractStartDate()
+             << "|" << player.getContractEndDate() << "|" << player.getClub() << "\n"; // Save club
     }
     file.close();
 }
@@ -224,9 +238,11 @@ void loadPlayersFromFile() {
         }
         data.push_back(line);
 
-        Player player(stoi(data[0]), data[1], stoi(data[2]), data[3], data[4][0],
-                      stoi(data[5]), stoi(data[6]), stoi(data[7]), stoi(data[8]), stoi(data[9]), stoi(data[10]), data[11], data[12]);
-        players.push_back(player);
+        if (data.size() == 15) { // Adjusted for the new club parameter
+            Player player(stoi(data[0]), data[1], stoi(data[2]), data[3], data[4], data[5][0],
+                          stoi(data[6]), stoi(data[7]), stoi(data[8]), stoi(data[9]), stoi(data[10]), stoi(data[11]), data[12], data[13], data[14]);
+            players.push_back(player);
+        }
     }
     file.close();
 }
@@ -263,17 +279,16 @@ public:
         string email;
         string phoneNo;
         bool isApproved;
-        double balance;
+        long long balance;
 
         Client(int id = 0, string name = "", string password = "", string agentName = "", 
-               string email = "", string phoneNo = "", bool isApproved = false, double balance = 0.0)
+               string email = "", string phoneNo = "", bool isApproved = false, long long balance = 0)
             : id(id), name(name), password(password), agentName(agentName), 
               email(email), phoneNo(phoneNo), isApproved(isApproved), balance(balance) {}
     };
 
 private:
-    vector<Client> clients = loadClubsFromFile();
-    vector<Player> roster;
+    vector<Client> clients;
 
     bool isStrongPassword(const string &password) {
         if (password.length() < 8) return false;
@@ -288,9 +303,8 @@ private:
     }
 
 public:
-Club() {
+    Club() {
         clients = loadClubsFromFile();
-        roster = loadRosterFromFile();
     }
 
     vector<Client> loadClubsFromFile() {
@@ -311,7 +325,7 @@ Club() {
             }
             data.push_back(line);
 
-            clients.emplace_back(stoi(data[0]), data[1], data[2], data[3], data[4], data[5], stoi(data[6]), stod(data[7]));
+            clients.emplace_back(stoi(data[0]), data[1], data[2], data[3], data[4], data[5], stoi(data[6]), stoll(data[7]));
         }
         file.close();
         return clients;
@@ -330,10 +344,10 @@ Club() {
         }
         file.close();
     }
-    
-    vector<Player> loadRosterFromFile() {
+
+    vector<Player> loadRosterFromFile(const string& clubName) {
         vector<Player> roster;
-        ifstream file("Roster.txt");
+        ifstream file(clubName + "_Roster.txt");
         if (!file) {
             cerr << "Error loading roster from file.\n";
             return roster;
@@ -349,22 +363,24 @@ Club() {
             }
             data.push_back(line);
 
-            Player player(stoi(data[0]), data[1], stoi(data[2]), data[3], data[4][0],
-                          stoi(data[5]), stoi(data[6]), stoi(data[7]), stoi(data[8]), stoi(data[9]), stoi(data[10]), data[11], data[12]);
-            roster.push_back(player);
+            if (data.size() == 14) {
+                Player player(stoi(data[0]), data[1], stoi(data[2]), data[3], data[4], data[5][0],
+                              stoi(data[6]), stoi(data[7]), stoi(data[8]), stoi(data[9]), stoi(data[10]), stoi(data[11]), data[12], data[13]);
+                roster.push_back(player);
+            }
         }
         file.close();
         return roster;
     }
 
-    void saveRosterToFile() {
-        ofstream file("Roster.txt");
+    void saveRosterToFile(const string& clubName, const vector<Player>& roster) {
+        ofstream file(clubName + "_Roster.txt");
         if (!file) {
             cerr << "Error saving roster to file.\n";
             return;
         }
         for (const auto &player : roster) {
-            file << player.getId() << "|" << player.getName() << "|" << player.getAge() << "|"
+            file << player.getId() << "|" << player.getName() << "|" << player.getAge() << "|" << player.getNationality() << "|"
                  << player.getPosition() << "|" << player.getStatus() << "|" << player.getGoals() << "|"
                  << player.getAssists() << "|" << player.getMatches() << "|" << player.getTacklesWon() << "|"
                  << player.getKeyPasses() << "|" << player.getInjuries() << "|" << player.getContractStartDate() << "|"
@@ -372,7 +388,7 @@ Club() {
         }
         file.close();
     }
-    
+
     Client* getClientById(int id) {
         for (auto &client : clients) {
             if (client.id == id) {
@@ -381,7 +397,7 @@ Club() {
         }
         return nullptr;
     }
-    
+
     void registerClient() {
         clearScreen();
         setColor(CYAN);
@@ -425,7 +441,7 @@ Club() {
         getline(cin, agentName);
 
         int id = clients.size() + 1;
-        clients.emplace_back(id, name, password, agentName, "", "", false, 0.0);
+        clients.emplace_back(id, name, password, agentName, "", "", false, 0);
         saveClubsToFile();
 
         setColor(GREEN);
@@ -586,14 +602,32 @@ Club() {
         setColor(RESET);
 
         int id;
+        string password;
         setColor(YELLOW);
         cout << "Enter your ID: ";
         setColor(RESET);
         fflush(stdin);
         cin >> id;
+        setColor(YELLOW);
+        cout << "Enter your Password: ";
+        setColor(RESET);
+        fflush(stdin);
+        char ch;
+        string pass = "";
+        while ((ch = _getch()) != 13) {
+            if (ch == 8 && !pass.empty()) {
+                pass.pop_back();
+                cout << "\b \b";
+            } else if (ch != 8) {
+                pass.push_back(ch);
+                cout << '*';
+            }
+        }
+        password = pass;
+        cout << endl;
 
         for (const auto &client : clients) {
-            if (client.id == id) {
+            if (client.id == id && client.password == password) {
                 if (client.isApproved) {
                     setColor(GREEN);
                     cout << "Login status: Approved\n";
@@ -609,7 +643,7 @@ Club() {
         }
 
         setColor(RED);
-        cout << "Client ID not found!\n";
+        cout << "Client ID or Password not found!\n";
         setColor(RESET);
         Sleep(1000);
     }
@@ -620,20 +654,21 @@ Club() {
         cout << "TransferMaster - Approve Club\n====================\n";
         setColor(RESET);
 
-        if (clients.empty()) {
-            setColor(RED);
-            cout << "No client registrations found!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
+        bool foundPending = false;
         setColor(GREEN);
         cout << "Pending Club Approvals:\n";
         for (const auto &client : clients) {
             if (!client.isApproved) {
+                foundPending = true;
                 cout << "ID: " << client.id << ", Name: " << client.name << ", Agent Name: " << client.agentName << "\n";
             }
+        }
+        if (!foundPending) {
+            setColor(RED);
+            cout << "No clients or clubs found!\n";
+            setColor(RESET);
+            Sleep(1000);
+            return;
         }
         setColor(RESET);
 
@@ -684,10 +719,9 @@ Club() {
                     setColor(GREEN);
                     cout << "1) Name\n";
                     cout << "2) Agent Name\n";
-                    cout << "3) Password\n";
-                    cout << "4) Email\n";
-                    cout << "5) Phone No\n";
-                    cout << "6) Back to Club Management\n";
+                    cout << "3) Email\n";
+                    cout << "4) Phone No\n";
+                    cout << "5) Back to Club Management\n";
                     setColor(RESET);
                     setColor(YELLOW);
                     cout << "Enter your choice: ";
@@ -721,26 +755,6 @@ Club() {
                             break;
                         }
                         case 3: {
-                            while (true) {
-                                setColor(YELLOW);
-                                cout << "Enter New Password: ";
-                                setColor(RESET);
-                                fflush(stdin);
-                                string newPassword;
-                                cin >> newPassword;
-
-                                if (!isStrongPassword(newPassword)) {
-                                    setColor(RED);
-                                    cout << "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a digit, and a special character.\n";
-                                    setColor(RESET);
-                                    continue;
-                                }
-                                client.password = newPassword;
-                                break;
-                            }
-                            break;
-                        }
-                        case 4: {
                             setColor(YELLOW);
                             cout << "Enter New Email (Current: " << client.email << "): ";
                             setColor(RESET);
@@ -757,7 +771,7 @@ Club() {
                             }
                             break;
                         }
-                        case 5: {
+                        case 4: {
                             setColor(YELLOW);
                             cout << "Enter New Phone No (Current: " << client.phoneNo << "): ";
                             setColor(RESET);
@@ -774,7 +788,7 @@ Club() {
                             }
                             break;
                         }
-                        case 6:
+                        case 5:
                             saveClubsToFile();
                             return;
                         default:
@@ -867,7 +881,7 @@ Club() {
         setColor(RESET);
 
         int id;
-        double newBalance;
+        long long newBalance;
         setColor(YELLOW);
         cout << "Enter Client ID to Update Balance: ";
         setColor(RESET);
@@ -914,13 +928,14 @@ Club() {
         }
 
         setColor(GREEN);
-        cout << setw(5) << "ID" << setw(20) << "Name" << setw(20) << "Agent Name"
-             << setw(30) << "Email" << setw(15) << "Phone No" << setw(10) << "Balance\n";
-        cout << "----------------------------------------------------------------------------------------------------------------\n";
-
         for (const auto &client : clients) {
-            cout << setw(5) << client.id << setw(20) << client.name << setw(20) << client.agentName
-                 << setw(30) << client.email << setw(15) << client.phoneNo << setw(10) << fixed << setprecision(2) << client.balance << "\n";
+            cout << "ID: " << client.id << "\n"
+                 << "Name: " << client.name << "\n"
+                 << "Agent Name: " << client.agentName << "\n"
+                 << "Email: " << client.email << "\n"
+                 << "Phone No: " << client.phoneNo << "\n"
+                 << "Balance: $" << fixed << setprecision(2) << client.balance << "\n"
+                 << "----------------------------------------\n";
         }
         setColor(RESET);
 
@@ -928,122 +943,233 @@ Club() {
         _getch();
     }
 
-    void viewPlayerRatingsAndFees() {
-        clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Player Ratings and Transfer Fees\n====================\n";
+void viewPlayerRatingsAndFees() {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Player Ratings and Transfer Fees\n====================\n";
+    setColor(RESET);
+
+    if (players.empty()) {
+        setColor(RED);
+        cout << "No players found!\n";
         setColor(RESET);
-
-        if (players.empty()) {
-            setColor(RED);
-            cout << "No players found!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        setColor(GREEN);
-        cout << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Rating" << setw(20) << "Transfer Fee\n";
-        cout << "------------------------------------------------------------\n";
-
-        for (const auto &player : players) {
-            double rating = player.calculateRating();
-            double transferFee = player.calculateTransferFee();
-            cout << setw(5) << player.getId() << setw(20) << player.getName() << setw(10) << fixed << setprecision(2) << rating << setw(20) << fixed << setprecision(2) << transferFee << "\n";
-        }
-        setColor(RESET);
-
-        cout << "\nPress any key to return...\n";
-        _getch();
+        Sleep(1000);
+        return;
     }
 
-    void initiateTransfer(Client* client) {
-        clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Initiate Transfer\n====================\n";
-        setColor(GREEN);
-        cout << "Agent name: " << client->agentName << "\tBalance: $" << fixed << setprecision(2) << client->balance << "\n";
-        setColor(RESET);
+    setColor(GREEN);
+    cout << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Rating" << setw(20) << "Transfer Fee\n";
+    cout << "------------------------------------------------------------\n";
 
-        if (players.empty()) {
-            setColor(RED);
-            cout << "No players found!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        setColor(GREEN);
-        cout << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Rating" << setw(20) << "Transfer Fee\n";
-        cout << "------------------------------------------------------------\n";
-
-        for (const auto &player : players) {
-            if (player.getStatus() == 'A' && player.getAge() >= 16) {
-                double rating = player.calculateRating();
-                double transferFee = player.calculateTransferFee();
+    for (const auto &player : players) {
+        if (player.getStatus() == 'A' && player.getClub().empty()) {
+            double rating = player.calculateRating();
+            double transferFee = player.calculateTransferFee();
+            if (rating >= 50) { // Ensure player meets the minimum rating criteria
                 cout << setw(5) << player.getId() << setw(20) << player.getName() << setw(10) << fixed << setprecision(2) << rating << setw(20) << fixed << setprecision(2) << transferFee << "\n";
             }
         }
-        setColor(RESET);
+    }
+    setColor(RESET);
 
-        cout << "\nEnter Player ID to initiate transfer: ";
-        int playerId;
-        fflush(stdin);
-        cin >> playerId;
+    cout << "\nPress any key to return...\n";
+    _getch();
+}
 
-        for (auto &player : players) {
-            if (player.getId() == playerId) {
-                if (client->balance < player.calculateTransferFee()) {
-                    setColor(RED);
-                    cout << "Insufficient balance for transfer!\n";
-                    setColor(RESET);
-                    Sleep(1000);
-                    return;
-                }
+void initiateTransfer(Client* client) {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Initiate Transfer\n====================\n";
+    setColor(GREEN);
+    cout << "Agent name: " << client->agentName << "\tBalance: $" << fixed << setprecision(2) << client->balance << "\n";
+    setColor(RESET);
 
-                time_t now = time(0);
-                tm *ltm = localtime(&now);
-                string startDate = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday);
-                ltm->tm_year += 3;
-                string endDate = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday);
-
-                player.setContractStartDate(startDate);
-                player.setContractEndDate(endDate);
-                player.setStatus('A');
-
-                client->balance -= player.calculateTransferFee();
-                saveClubsToFile();
-
-                setColor(GREEN);
-                cout << "Transfer initiated successfully! Contract Period: " << startDate << " to " << endDate << "\n";
-                setColor(RESET);
-                Sleep(1000);
-                savePlayersToFile();
-                return;
-            }
-        }
-
+    if (players.empty()) {
         setColor(RED);
-        cout << "Player ID not found!\n";
+        cout << "No players found!\n";
         setColor(RESET);
         Sleep(1000);
+        return;
     }
 
-    void manageRosters() {
+    setColor(GREEN);
+    cout << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Rating" << setw(20) << "Transfer Fee\n";
+    cout << "------------------------------------------------------------\n";
+
+    for (const auto &player : players) {
+        if (player.getStatus() == 'A' && player.getAge() >= 16 && player.getClub().empty()) {
+            double rating = player.calculateRating();
+            double transferFee = player.calculateTransferFee();
+            if (rating >= 50) { // Ensure player meets the minimum rating criteria
+                cout << setw(5) << player.getId() << setw(20) << player.getName() << setw(10) << fixed << setprecision(2) << rating << setw(20) << fixed << setprecision(2) << transferFee << "\n";
+            }
+        }
+    }
+    setColor(RESET);
+
+    cout << "\nEnter Player ID to initiate transfer: ";
+    int playerId;
+    fflush(stdin);
+    cin >> playerId;
+
+    for (auto &player : players) {
+        if (player.getId() == playerId && player.getStatus() == 'A' && player.getAge() >= 16 && player.getClub().empty()) {
+            if (client->balance < player.calculateTransferFee()) {
+                setColor(RED);
+                cout << "Insufficient balance for transfer!\n";
+                setColor(RESET);
+                Sleep(1000);
+                return;
+            }
+
+            time_t now = time(0);
+            tm *ltm = localtime(&now);
+            string startDate = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday);
+            ltm->tm_year += 3;
+            string endDate = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday);
+
+            player.setContractStartDate(startDate);
+            player.setContractEndDate(endDate);
+            player.setClub(client->name); // Assign player to the club
+            player.setStatus('A');
+
+            client->balance -= player.calculateTransferFee();
+            saveClubsToFile();
+            squad.push_back(player); // Add player to the squad
+            saveRosterToFile(client->name, squad); // Save to roster file
+            savePlayersToFile(); // Save player data to Player.txt
+
+            setColor(GREEN);
+            cout << "Transfer initiated successfully! Contract Period: " << startDate << " to " << endDate << "\n";
+            setColor(RESET);
+            Sleep(1000);
+            return;
+        }
+    }
+
+    setColor(RED);
+    cout << "Player ID not found or player is not eligible for transfer!\n";
+    setColor(RESET);
+    Sleep(1000);
+}
+
+void manageRosters(Client* client) {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Squad Overview\n====================\n";
+    setColor(GREEN);
+    cout << "1) View Squad\n";
+    cout << "2) Back to Client Menu\n";
+    setColor(RESET);
+    setColor(YELLOW);
+    cout << "Enter your choice: ";
+    setColor(RESET);
+
+    int choice;
+    cin >> choice;
+    if (cin.fail()) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        if (!continuePrompt()) {
+            return;
+        }
+    } else {
+        displayLoading();
+        clearScreen();
+
+        switch (choice) {
+            case 1:
+                viewSquad(client); // Pass client
+                break;
+            case 2:
+                return;
+            default:
+                setColor(RED);
+                cout << "Invalid choice! Try again.\n";
+                setColor(RESET);
+                Sleep(1000);
+        }
+    }
+}
+
+void viewSquad(Client* client) {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Squad\n====================\n";
+    setColor(RESET);
+
+    squad = loadRosterFromFile(client->name); // Load squad from the roster file
+
+    if (squad.empty()) {
+        setColor(RED);
+        cout << "No players in the squad!\n";
+        setColor(RESET);
+        Sleep(1000);
+        return;
+    }
+
+    setColor(GREEN);
+    for (const auto &player : squad) {
+        cout << "ID: " << player.getId() << "\n"
+             << "Name: " << player.getName() << "\n"
+             << "Age: " << player.getAge() << "\n"
+             << "Nationality: " << player.getNationality() << "\n"
+             << "Position: " << player.getPosition() << "\n"
+             << "Status: " << player.getStatus() << "\n"
+             << "Goals Scored: " << player.getGoals() << "\n"
+             << "Assists: " << player.getAssists() << "\n"
+             << "Matches: " << player.getMatches() << "\n"
+             << "Tackles Won: " << player.getTacklesWon() << "\n"
+             << "Key Passes: " << player.getKeyPasses() << "\n"
+             << "Injuries: " << player.getInjuries() << "\n"
+             << "Contract Start Date: " << player.getContractStartDate() << "\n"
+             << "Contract End Date: " << player.getContractEndDate() << "\n"
+             << "----------------------------------------\n";
+    }
+    setColor(RESET);
+
+    cout << "\nPress any key to return...\n";
+    _getch();
+}
+
+void viewClubInformation(Client* client) {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Club Information\n====================\n";
+    setColor(GREEN);
+    cout << "ID: " << client->id << "\n";
+    cout << "Name: " << client->name << "\n";
+    cout << "Agent Name: " << client->agentName << "\n";
+    cout << "Email: " << client->email << "\n";
+    cout << "Phone No: " << client->phoneNo << "\n";
+    cout << "Balance: $" << fixed << setprecision(2) << client->balance << "\n";
+    setColor(RESET);
+    cout << "\nPress any key to return...\n";
+    _getch();
+}
+
+void clubLoginMenu(Client* client) {
+    int choice;
+    do {
+        displayLoading();
         clearScreen();
         setColor(CYAN);
-        cout << "TransferMaster - Manage Rosters\n====================\n";
+        cout << "TransferMaster - Login Menu\n====================\n";
         setColor(GREEN);
-        cout << "1) Add Player to Squad\n";
-        cout << "2) View All Players in Squad\n";
-        cout << "3) Remove Player from Squad\n";
-        cout << "4) Back to Client Menu\n";
+        cout << "Agent name: " << client->agentName << "\tBalance: $" << fixed << setprecision(2) << client->balance << "\n";
+        cout << "1) Update Club Information\n";
+        cout << "2) Squad Overview\n"; // Renamed from Manage Roster
+        cout << "3) Initiate Transfer\n";
+        cout << "4) View Player's Rating and Transfer Fee\n";
+        cout << "5) View Transfer Guidelines\n";
+        cout << "6) View Game Rules\n";
+        cout << "7) View Club Information\n"; // New option to view club information
+        cout << "8) Back to Main Menu\n";
         setColor(RESET);
         setColor(YELLOW);
         cout << "Enter your choice: ";
         setColor(RESET);
 
-        int choice;
         cin >> choice;
         if (cin.fail()) {
             cin.clear();
@@ -1051,222 +1177,45 @@ Club() {
             if (!continuePrompt()) {
                 return;
             }
-        } else {
-            displayLoading();
-            clearScreen();
-
-            switch (choice) {
-                case 1:
-                    addPlayerToSquad();
-                    break;
-                case 2:
-                    viewSquad();
-                    break;
-                case 3:
-                    removePlayerFromSquad();
-                    break;
-                case 4:
-                    return;
-                default:
-                    setColor(RED);
-                    cout << "Invalid choice! Try again.\n";
-                    setColor(RESET);
-                    Sleep(1000);
-            }
+            continue;
         }
-    }
-
-    void addPlayerToSquad() {
+        displayLoading();
         clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Add Player to Squad\n====================\n";
-        setColor(RESET);
 
-        if (squad.size() >= 30) {
-            setColor(RED);
-            cout << "Squad limit reached! Only 30 players can be added to the squad.\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        if (players.empty()) {
-            setColor(RED);
-            cout << "No available players found!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        setColor(GREEN);
-        cout << setw(5) << "ID" << setw(20) << "Name" << setw(10) << "Age"
-             << setw(15) << "Position" << setw(10) << "Status" << setw(10) << "Goals"
-             << setw(10) << "Assists" << setw(10) << "Matches" << setw(10) << "TacklesWon" << setw(10) << "KeyPasses" << setw(10) << "Injuries" << "\n";
-        cout << "----------------------------------------------------------------------------------------------------------------\n";
-
-        for (const auto &player : players) {
-            player.display();
-        }
-        setColor(RESET);
-
-        cout << "\nEnter Player ID to add to squad: ";
-        int playerId;
-        fflush(stdin);
-        cin >> playerId;
-
-        for (auto it = players.begin(); it != players.end(); ++it) {
-            if (it->getId() == playerId) {
-                squad.push_back(*it);
-                players.erase(it);
-                setColor(GREEN);
-                cout << "Player added to squad successfully!\n";
-                setColor(RESET);
-                savePlayersToFile();
+        switch (choice) {
+            case 1:
+                editClient();
+                break;
+            case 2:
+                manageRosters(client); // Pass client
+                break;
+            case 3:
+                initiateTransfer(client);
+                break;
+            case 4:
+                viewPlayerRatingsAndFees();
+                break;
+            case 5:
+                transferGuidelines();
+                break;
+            case 6:
+                gameRules();
+                break;
+            case 7: // View Club Information
+                viewClubInformation(client);
+                break;
+            case 8:
+                cout << "Returning to Main Menu...\n";
                 Sleep(1000);
-                return;
-            }
-        }
-
-        setColor(RED);
-        cout << "Player ID not found!\n";
-        setColor(RESET);
-        Sleep(1000);
-    }
-
-    void viewSquad() {
-        clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Squad\n====================\n";
-        setColor(RESET);
-
-        if (squad.empty()) {
-            setColor(RED);
-            cout << "No players in the squad!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        setColor(GREEN);
-        for (const auto &player : squad) {
-            player.display();
-            cout << "----------------------------------------\n";
-        }
-        setColor(RESET);
-
-        cout << "\nPress any key to return...\n";
-        _getch();
-    }
-
-    void removePlayerFromSquad() {
-        clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Remove Player from Squad\n====================\n";
-        setColor(RESET);
-
-        if (squad.empty()) {
-            setColor(RED);
-            cout << "No players in the squad!\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
-
-        setColor(GREEN);
-        for (const auto &player : squad) {
-            player.display();
-            cout << "----------------------------------------\n";
-        }
-        setColor(RESET);
-
-        cout << "\nEnter Player ID to remove from squad: ";
-        int playerId;
-        fflush(stdin);
-        cin >> playerId;
-
-        for (auto it = squad.begin(); it != squad.end(); ++it) {
-            if (it->getId() == playerId) {
-                holdState.push_back(*it);
-                squad.erase(it);
-                setColor(GREEN);
-                cout << "Player moved to hold state successfully!\n";
+                break;
+            default:
+                setColor(RED);
+                cout << "Invalid choice! Please try again.\n";
                 setColor(RESET);
-                savePlayersToFile();
                 Sleep(1000);
-                return;
-            }
         }
-
-        setColor(RED);
-        cout << "Player ID not found!\n";
-        setColor(RESET);
-        Sleep(1000);
-    }
-
-    void clubLoginMenu(Client* client) {
-        int choice;
-        do {
-            displayLoading();
-            clearScreen();
-            setColor(CYAN);
-            cout << "TransferMaster - Login Menu\n====================\n";
-            setColor(GREEN);
-            cout << "Agent name: " << client->agentName << "\tBalance: $" << fixed << setprecision(2) << client->balance << "\n";
-            cout << "1) Update Club Information\n";
-            cout << "2) Manage Roster\n";
-            cout << "3) Initiate Transfer\n";
-            cout << "4) View Player's Rating and Transfer Fee\n";
-            cout << "5) View Transfer Guidelines\n";
-            cout << "6) View Game Rules\n";
-            cout << "7) Back to Main Menu\n";
-            setColor(RESET);
-            setColor(YELLOW);
-            cout << "Enter your choice: ";
-            setColor(RESET);
-
-            cin >> choice;
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                if (!continuePrompt()) {
-                    return;
-                }
-                continue;
-            }
-            displayLoading();
-            clearScreen();
-
-            switch (choice) {
-                case 1:
-                    editClient();
-                    break;
-                case 2:
-                    manageRosters();
-                    break;
-                case 3:
-                    initiateTransfer(client);
-                    break;
-                case 4:
-                    viewPlayerRatingsAndFees();
-                    break;
-                case 5:
-                    transferGuidelines();
-                    break;
-                case 6:
-                    gameRules();
-                    break;
-                case 7:
-                    cout << "Returning to Main Menu...\n";
-                    Sleep(1000);
-                    break;
-                default:
-                    setColor(RED);
-                    cout << "Invalid choice! Please try again.\n";
-                    setColor(RESET);
-                    Sleep(1000);
-            }
-        } while (choice != 7);
-    }
+    } while (choice != 8);
+}
 };
 
 class Admin {
@@ -1289,7 +1238,7 @@ public:
     Admin() {
         adminPassword = loadAdminPasswordFromFile();
     }
-
+	    
     void changeAdminPassword() {
         clearScreen();
         setColor(CYAN);
@@ -1413,15 +1362,8 @@ public:
                     setColor(GREEN);
                     cout << "1) Name\n";
                     cout << "2) Age\n";
-                    cout << "3) Position\n";
-                    cout << "4) Status\n";
-                    cout << "5) Goals\n";
-                    cout << "6) Assists\n";
-                    cout << "7) Matches\n";
-                    cout << "8) Tackles Won\n";
-                    cout << "9) Key Passes\n";
-                    cout << "10) Injuries\n";
-                    cout << "11) Back to Player Management\n";
+                    cout << "3) Nationality\n";
+                    cout << "4) Back to Player Management\n";
                     setColor(RESET);
                     setColor(YELLOW);
                     cout << "Enter your choice: ";
@@ -1470,100 +1412,15 @@ public:
                         }
                         case 3: {
                             setColor(YELLOW);
-                            cout << "Enter New Position (Current: " << player.getPosition() << ") (Goalkeeper, Defender, Midfielder, Forward, Striker): ";
+                            cout << "Enter New Nationality (Current: " << player.getNationality() << "): ";
                             setColor(RESET);
                             fflush(stdin);
-                            string newPosition;
-                            getline(cin, newPosition);
-                            vector<string> validPositions = {"Goalkeeper", "Defender", "Midfielder", "Forward", "Striker"};
-                            if (find(validPositions.begin(), validPositions.end(), newPosition) != validPositions.end()) {
-                                player.setPosition(newPosition);
-                            } else {
-                                setColor(RED);
-                                cout << "Invalid position! Valid positions are Goalkeeper, Defender, Midfielder, Forward, Striker.\n";
-                                setColor(RESET);
-                                Sleep(1000);
-                            }
+                            string newNationality;
+                            getline(cin, newNationality);
+                            player.setNationality(newNationality);
                             break;
                         }
-                        case 4: {
-                            setColor(YELLOW);
-                            cout << "Enter New Status (Current: " << player.getStatus() << ") (A=Active, I=Inactive, T=Terminated): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            char newStatus;
-                            cin >> newStatus;
-                            if (newStatus == 'A' || newStatus == 'I' || newStatus == 'T') {
-                                player.setStatus(newStatus);
-                            } else {
-                                setColor(RED);
-                                cout << "Invalid status! Valid statuses are A=Active, I=Inactive, T=Terminated.\n";
-                                setColor(RESET);
-                                Sleep(1000);
-                            }
-                            break;
-                        }
-                        case 5: {
-                            setColor(YELLOW);
-                            cout << "Enter Goals Scored (Current: " << player.getGoals() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newGoals;
-                            cin >> newGoals;
-                            player.setGoals(newGoals);
-                            break;
-                        }
-                        case 6: {
-                            setColor(YELLOW);
-                            cout << "Enter Assists (Current: " << player.getAssists() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newAssists;
-                            cin >> newAssists;
-                            player.setAssists(newAssists);
-                            break;
-                        }
-                        case 7: {
-                            setColor(YELLOW);
-                            cout << "Enter Matches Played (Current: " << player.getMatches() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newMatches;
-                            cin >> newMatches;
-                            player.setMatches(newMatches);
-                            break;
-                        }
-                        case 8: {
-                            setColor(YELLOW);
-                            cout << "Enter Tackles Won (Current: " << player.getTacklesWon() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newTacklesWon;
-                            cin >> newTacklesWon;
-                            player.setTacklesWon(newTacklesWon);
-                            break;
-                        }
-                        case 9: {
-                            setColor(YELLOW);
-                            cout << "Enter Key Passes (Current: " << player.getKeyPasses() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newKeyPasses;
-                            cin >> newKeyPasses;
-                            player.setKeyPasses(newKeyPasses);
-                            break;
-                        }
-                        case 10: {
-                            setColor(YELLOW);
-                            cout << "Enter Number of Injuries (Current: " << player.getInjuries() << "): ";
-                            setColor(RESET);
-                            fflush(stdin);
-                            int newInjuries;
-                            cin >> newInjuries;
-                            player.setInjuries(newInjuries);
-                            break;
-                        }
-                        case 11:
+                        case 4:
                             savePlayersToFile();
                             return;
                         default:
@@ -1644,70 +1501,70 @@ public:
         Sleep(1000);
     }
 
-    void playerManagement() {
-        while (true) {
-            clearScreen();
-            setColor(CYAN);
-            cout << "TransferMaster - Player Management\n====================\n";
-            setColor(GREEN);
-            cout << "1) Add Player\n";
-            cout << "2) Edit Player\n";
-            cout << "3) Delete Player\n";
-            cout << "4) Search Player\n";
-            cout << "5) Update Player Stats and Status\n";
-            cout << "6) View All Players\n";
-            cout << "7) Release Player from Club\n";
-            cout << "8) Back to Admin Menu\n";
-            setColor(RESET);
-            setColor(YELLOW);
-            cout << "Enter your choice: ";
-            setColor(RESET);
+void playerManagement(Club* club, Club::Client* client) {
+    while (true) {
+        clearScreen();
+        setColor(CYAN);
+        cout << "TransferMaster - Player Management\n====================\n";
+        setColor(GREEN);
+        cout << "1) Add Player\n";
+        cout << "2) Edit Player\n";
+        cout << "3) Delete Player\n";
+        cout << "4) Search Player\n";
+        cout << "5) Update Player Stats and Status\n";
+        cout << "6) View All Players\n";
+        cout << "7) Release Player from Club\n";
+        cout << "8) Back to Admin Menu\n";
+        setColor(RESET);
+        setColor(YELLOW);
+        cout << "Enter your choice: ";
+        setColor(RESET);
 
-            int choice;
-            cin >> choice;
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                if (!continuePrompt()) {
-                    return;
-                }
-                continue;
+        int choice;
+        cin >> choice;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (!continuePrompt()) {
+                return;
             }
-            displayLoading();
-            clearScreen();
+            continue;
+        }
+        displayLoading();
+        clearScreen();
 
-            switch (choice) {
-                case 1:
-                    addPlayer();
-                    break;
-                case 2:
-                    editPlayer();
-                    break;
-                case 3:
-                    deletePlayer();
-                    break;
-                case 4:
-                    searchPlayer();
-                    break;
-                case 5:
-                    updatePlayerStats();
-                    break;
-                case 6:
-                    viewAllPlayers();
-                    break;
-                case 7:
-                    releasePlayer();
-                    break;
-                case 8:
-                    return;
-                default:
-                    setColor(RED);
-                    cout << "Invalid choice! Try again.\n";
-                    setColor(RESET);
-                    Sleep(1000);
-            }
+        switch (choice) {
+            case 1:
+                addPlayer();
+                break;
+            case 2:
+                editPlayer();
+                break;
+            case 3:
+                deletePlayer();
+                break;
+            case 4:
+                searchPlayer();
+                break;
+            case 5:
+                updatePlayerStats();
+                break;
+            case 6:
+                viewAllPlayers();
+                break;
+            case 7:
+                releasePlayer(club, client);
+                break;
+            case 8:
+                return;
+            default:
+                setColor(RED);
+                cout << "Invalid choice! Try again.\n";
+                setColor(RESET);
+                Sleep(1000);
         }
     }
+}
 
     void addPlayer() {
         clearScreen();
@@ -1741,21 +1598,12 @@ public:
         newPlayer.setAge(age);
 
         setColor(YELLOW);
-        cout << "Enter Player Position (Goalkeeper, Defender, Midfielder, Forward, Striker): ";
+        cout << "Enter Player Nationality: ";
         setColor(RESET);
         fflush(stdin);
-        string position;
-        cin >> position;
-        vector<string> validPositions = {"Goalkeeper", "Defender", "Midfielder", "Forward", "Striker"};
-        if (find(validPositions.begin(), validPositions.end(), position) != validPositions.end()) {
-            newPlayer.setPosition(position);
-        } else {
-            setColor(RED);
-            cout << "Invalid position! Valid positions are Goalkeeper, Defender, Midfielder, Forward, Striker.\n";
-            setColor(RESET);
-            Sleep(1000);
-            return;
-        }
+        string nationality;
+        cin >> nationality;
+        newPlayer.setNationality(nationality);
 
         newPlayer.setStatus('A');  // Default status is Active
 
@@ -1794,7 +1642,7 @@ public:
                     cout << "3) Matches\n";
                     cout << "4) Tackles Won\n";
                     cout << "5) Key Passes\n";
-                    cout << "6) Role\n";
+                    cout << "6) Position\n";
                     cout << "7) Injuries\n";
                     cout << "8) Status\n";
                     cout << "9) Back to Player Management\n";
@@ -1807,7 +1655,7 @@ public:
                     cin >> choice;
                     if (cin.fail()) {
                         cin.clear();
-                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                                                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         if (!continuePrompt()) {
                             return;
                         }
@@ -1869,17 +1717,17 @@ public:
                         }
                         case 6: {
                             setColor(YELLOW);
-                            cout << "Enter Role (Goalkeeper, Defender, Midfielder, Forward, Striker): ";
+                            cout << "Enter Position (Goalkeeper, Defender, Midfielder, Forward, Striker): ";
                             setColor(RESET);
                             fflush(stdin);
-                            string newRole;
-                            getline(cin, newRole);
-                            vector<string> validRoles = {"Goalkeeper", "Defender", "Midfielder", "Forward", "Striker"};
-                            if (find(validRoles.begin(), validRoles.end(), newRole) != validRoles.end()) {
-                                player.setPosition(newRole);
+                            string newPosition;
+                            getline(cin, newPosition);
+                            vector<string> validPositions = {"Goalkeeper", "Defender", "Midfielder", "Forward", "Striker"};
+                            if (find(validPositions.begin(), validPositions.end(), newPosition) != validPositions.end()) {
+                                player.setPosition(newPosition);
                             } else {
                                 setColor(RED);
-                                cout << "Invalid role! Valid roles are Goalkeeper, Defender, Midfielder, Forward, Striker.\n";
+                                cout << "Invalid position! Valid positions are Goalkeeper, Defender, Midfielder, Forward, Striker.\n";
                                 setColor(RESET);
                                 Sleep(1000);
                             }
@@ -1931,35 +1779,40 @@ public:
         Sleep(1000);
     }
 
-    void releasePlayer() {
-        clearScreen();
-        setColor(CYAN);
-        cout << "TransferMaster - Release Player\n====================\n";
-        setColor(RESET);
+void releasePlayer(Club* club, Club::Client* client) {
+    clearScreen();
+    setColor(CYAN);
+    cout << "TransferMaster - Release Player\n====================\n";
+    setColor(RESET);
 
-        int id;
-        setColor(YELLOW);
-        cout << "Enter Player ID to Release: ";
-        setColor(RESET);
-        fflush(stdin);
-        cin >> id;
-        displayLoading();
-        clearScreen();
+    int id;
+    setColor(YELLOW);
+    cout << "Enter Player ID to Release: ";
+    setColor(RESET);
+    fflush(stdin);
+    cin >> id;
+    displayLoading();
+    clearScreen();
 
-        auto it = remove_if(players.begin(), players.end(), [id](const Player &p) { return p.getId() == id; });
-        if (it != players.end()) {
-            players.erase(it, players.end());
-            savePlayersToFile();
-            setColor(GREEN);
-            cout << "Player released successfully!\n";
-            setColor(RESET);
-        } else {
-            setColor(RED);
-            cout << "Player ID not found!\n";
-            setColor(RESET);
-        }
-        Sleep(1000);
+    auto it = find_if(players.begin(), players.end(), [id](const Player &p) { return p.getId() == id; });
+    if (it != players.end()) {
+        it->setClub(""); // Clear the player's club in Player.txt
+        savePlayersToFile();
+
+        squad = club->loadRosterFromFile(client->name);
+        squad.erase(remove_if(squad.begin(), squad.end(), [id](const Player &p) { return p.getId() == id; }), squad.end());
+        club->saveRosterToFile(client->name, squad);
+
+        setColor(GREEN);
+        cout << "Player released successfully!\n";
+        setColor(RESET);
+    } else {
+        setColor(RED);
+        cout << "Player ID not found!\n";
+        setColor(RESET);
     }
+    Sleep(1000);
+}
 
     void viewAllPlayers() {
         clearScreen();
@@ -2171,7 +2024,8 @@ int main() {
                         clearScreen();
 
                         if (adminChoice == 1) {
-                            admin.playerManagement();
+                            Club::Client* client = club.getClientById(1); // Get a client for demonstration
+                            admin.playerManagement(&club, client); // Pass the club and client
                         } else if (adminChoice == 2) {
                             admin.clubManagement(club);
                         } else if (adminChoice == 3) {
