@@ -1961,6 +1961,73 @@ void clientMenu(Club& club) {
     } while (choice != 6);
 }
 
+void displayPrivacyPolicy() {
+    clearScreen();
+    setColor(GREEN);
+    printf("\n========================= PRIVACY POLICY =========================\n");
+    setColor(RESET);
+    setColor(CYAN);
+    printf("At TransferMaster, we take your privacy seriously. \n");
+    printf("We are committed to securely handling your data and ensuring confidentiality.\n\n");
+    printf("Your information is protected, and we continuously monitor our security measures\n");
+    printf("to safeguard against unauthorized access, disclosure, or misuse.\n");
+    printf("====================================================================\n");
+    setColor(RESET);
+}
+
+// Display about the program and how it facilitates transfer management
+void displayAboutUs() {
+    clearScreen();
+    setColor(GREEN);
+    printf("\n=========================== ABOUT US ============================\n");
+    setColor(RESET);
+    setColor(CYAN);
+    printf("Welcome to TransferMaster, your go-to football transfer management system.\n\n");
+    
+    printf("Our Mission:\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("Our mission is to revolutionize football transfer management by providing \n");
+    printf("an advanced platform that leverages AI and regression models to make \n");
+    printf("data-driven decisions, enabling clubs to effectively manage player transfers, \n");
+    printf("evaluate player ratings, and set accurate transfer fees.\n\n");
+    
+    printf("Features:\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("1. AI-Driven Player Valuation: Use AI models to analyze player performance \n");
+    printf("   and predict future market values, ensuring precise transfer fee estimations.\n");
+    printf("2. Comprehensive Transfer Management: Efficiently handle player acquisitions,\n");
+    printf("   sales, and contracts with real-time updates.\n");
+    printf("3. Detailed Player Statistics: Access player stats to make informed decisions on \n");
+    printf("   transfers, including performance analysis and injury history.\n");
+    printf("4. Transfer Fee Prediction: Use regression models to predict market trends and \n");
+    printf("   transfer fees based on player ratings and historical data.\n");
+    printf("5. Streamlined User Interface: A clean, user-friendly interface that simplifies \n");
+    printf("   the transfer process for administrators.\n\n");
+    
+    printf("AI and Regression Models:\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("TransferMaster integrates cutting-edge AI algorithms to evaluate player \n");
+    printf("performances and predict market values with high accuracy. Our advanced \n");
+    printf("regression models analyze historical data, player stats, and current market \n");
+    printf("trends to set realistic transfer fees, enabling clubs to make well-informed, \n");
+    printf("strategic decisions.\n\n");
+    
+    printf("Our Team:\n");
+    printf("---------------------------------------------------------------------\n");
+    printf("TransferMaster is developed by a team of passionate professionals:\n");
+    printf("- Prajjwal Maharjan (Lead Developer)\n");
+    printf("- Rabin Pulami Magar\n");
+    printf("- Durga Budha\n");
+    printf("Prajjwal Maharjan, our lead developer, brings a wealth of expertise in AI, \n");
+    printf("data analysis, and software development, ensuring TransferMaster is a cutting-\n");
+    printf("edge solution for football transfer management.\n\n");
+    
+    printf("Thank you for choosing TransferMaster. We are committed to helping clubs \n");
+    printf("make data-driven, intelligent decisions in the ever-evolving world of football transfers.\n");
+    printf("=====================================================================\n");
+    setColor(RESET);
+}
+
 int main() {
     Admin admin;
     Club club;
@@ -2024,8 +2091,8 @@ int main() {
                         clearScreen();
 
                         if (adminChoice == 1) {
-                            Club::Client* client = club.getClientById(1); // Get a client for demonstration
-                            admin.playerManagement(&club, client); // Pass the club and client
+                            Club::Client* client = club.getClientById(1); 
+                            admin.playerManagement(&club, client); 
                         } else if (adminChoice == 2) {
                             admin.clubManagement(club);
                         } else if (adminChoice == 3) {
@@ -2052,23 +2119,14 @@ int main() {
                 break;
 
             case 3:
-                clearScreen();
-                setColor(YELLOW);
-                cout << "TransferMaster - Privacy Policy\n====================\n";
-                setColor(RESET);
-                cout << "We value your privacy and securely store all data.\n";
-                Sleep(2000);
+                displayPrivacyPolicy();
+                cout << "Press any key to continue....."<< endl;
+                _getch();
                 break;
 
             case 4:
-                clearScreen();
-                setColor(CYAN);
-                cout << "TransferMaster - About Us\n====================\n";
-                setColor(YELLOW);
-                cout << "TransferMaster is your go-to application for managing football players.\n";
-                cout << "Designed for clubs to efficiently manage player data and player transfers.\n";
-                setColor(RESET);
-                cout << "\nPress any key to return to the main menu...\n";
+                displayAboutUs();
+                cout << "Press any key to continue....." << endl;
                 _getch();
                 break;
 
@@ -2086,6 +2144,5 @@ int main() {
                 Sleep(1000);
         }
     }
-
     return 0;
 }
