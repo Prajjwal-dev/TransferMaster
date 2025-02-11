@@ -261,6 +261,7 @@ string loadAdminPasswordFromFile() {
     ifstream file("adminPassword.txt");
     if (!file) {
         saveAdminPasswordToFile("admin123");
+        return "admin123"; // Return the initial password if the file did not exist
     }
 
     string password;
