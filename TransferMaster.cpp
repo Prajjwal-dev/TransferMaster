@@ -864,7 +864,9 @@ public:
                 cout << "Phone No: " << client.phoneNo << "\n";
                 cout << "Balance: $" << fixed << setprecision(2) << client.balance << "\n";
                 setColor(RESET);
-                Sleep(3000);
+                cout << "Press any key to return to Club Management...." << endl;
+                _getch();
+                displayLoading();
                 return;
             }
         }
@@ -1491,7 +1493,9 @@ public:
                 cout << "Player Found!\n";
                 player.display();
                 setColor(RESET);
-                Sleep(3000);
+                cout << "Press any key to return to Player Management...." << endl;
+                _getch();
+                displayLoading();
                 return;
             }
         }
@@ -1797,12 +1801,13 @@ void releasePlayer(Club* club, Club::Client* client) {
 
     auto it = find_if(players.begin(), players.end(), [id](const Player &p) { return p.getId() == id; });
     if (it != players.end()) {
+        string clubName = it->getClub(); // Get the player's club name before clearing it
         it->setClub(""); // Clear the player's club in Player.txt
         savePlayersToFile();
 
-        squad = club->loadRosterFromFile(client->name);
+        squad = club->loadRosterFromFile(clubName); // Use the club name to load the correct roster
         squad.erase(remove_if(squad.begin(), squad.end(), [id](const Player &p) { return p.getId() == id; }), squad.end());
-        club->saveRosterToFile(client->name, squad);
+        club->saveRosterToFile(clubName, squad); // Save the updated roster to the correct file
 
         setColor(GREEN);
         cout << "Player released successfully!\n";
